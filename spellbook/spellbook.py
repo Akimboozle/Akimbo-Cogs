@@ -236,50 +236,36 @@ class Spellbook(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def filter(self, ctx, *, filter):
-        """Searches for Wizards with knowledge of a particular spell"""
-
-        filter = processStringToList(filter).pop()
-        server = ctx.guild
-        db = await self.config.guild(server).db()
-        FilteredList = []
-        Pages = []
-        Resultsperpage = 5
-        PageNo = 1
-
-        if len(db) == 0:
-            await ctx.send("There are no spellbooks in this library")
-
-        if not isSpellValid(filter):
-            await self.sendDiscordMessage(ctx, ":warning: Oh no! :warning:", "{} is not a valid spell. Please make sure you spelled it right\nUsed ' and -'s correctly.\nPlease make sure your spell is in [this list](https://pastebin.com/YS7NmYqh)".format(filter))
-        else:
-            for id in db:
-                user = server.get_member(id)
-                nickname = user.display_name
-                nickname = nickname[0:20]
-                userdata = await self.config.member(user).all()
-
-                if filter in userdata["Spell"]:
-                    FilteredList.extend([[f"{nickname}", f"{user.id}"]])
-
-            if len(FilteredList) == 0:
-                await self.sendDiscordMessage(
-                    ctx, ":warning: Oh no! :warning:", "There are no Wizards who know {}".format(filter))
-            else:
-                SplitList = [FilteredList[i * Resultsperpage:(i + 1) * Resultsperpage] for i in range(
-                    (len(FilteredList) + Resultsperpage - 1) // Resultsperpage)]
-                for Split in SplitList:
-                    tabulatedlist = f"""```{tabulate(Split, headers=["#", "Username","ID"], tablefmt="fancy_grid", showindex="always", colalign=("center", "center", "center"))}```"""
-                    e = discord.Embed(colour=discord.Color.red())
-                    e.add_field(
-                        name=f"Filter: {filter}", value=f"Number of results: {len(FilteredList)}", inline=False)
-                    e.add_field(name="Here is a list of all the Wizards who know that spell",
-                                value=tabulatedlist, inline=False)
-                    e.set_footer(text=f"Page {PageNo}/{len(SplitList)}")
-                    PageNo += 1
-                    Pages.append(e)
-
-                await menu(ctx, Pages, DEFAULT_CONTROLS)
+        @spellbook.command()
+    async def filter(self, ctx, category):
+        """
+        Filter your spells by category.
+        """
+        category = category.lower()
+        if category not in SPELL_CATEGORIES:
+            return await ctx.send("Invalid category. Use `;category` command to see all available categories.")
+        
+        spells = self.get_spells(ctx.author.id)
+        if not spells:
+            return await ctx.send("You don't have any spells yet.")
+        
+        filtered_spells = [spell for spell in spells if spell["category"] == category]
+        
+        if not filtered_spells:
+            return await ctx.send("You don't have any spells in this category.")
+        
+        filtered_spells = sorted(filtered_spells, key=lambda x: x["name"])
+        
+        filtered_spells_str = "\n".join([f'**{spell["name"]}**: {spell["description"]}' for spell in filtered_spells])
+        
+        # Fix for 'NoneType' object has no attribute 'display_name' error
+        user = ctx.author
+        if ctx.message.mentions:
+            user = ctx.message.mentions[0]
+        nickname = user.display_name if user else "Unknown User"
+        
+        embed = discord.Embed(title=f"{nickname}'s {category.capitalize()} Spells", description=filtered_spells_str, color=0x4a90e2)
+        await ctx.send(embed=embed)
 
     async def sendDiscordMessage(self, ctx, title, text):
         data = discord.Embed(colour=ctx.author.colour)
