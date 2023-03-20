@@ -343,6 +343,8 @@ class Spellbook(commands.Cog):
         else:
             for id in db:
                 user = server.get_member(id)
+                if user is None:
+                    continue # TODO: drop stale users
                 nickname = user.display_name
                 nickname = nickname[0:20]
                 userdata = await self.config.member(user).all()
