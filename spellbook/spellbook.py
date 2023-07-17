@@ -75,6 +75,9 @@ class Spellbook(commands.Cog):
             data = discord.Embed(colour=user.colour)
             # data.set_author(name="{}'s Account".format(user.name), icon_url=user.avatar.url)
             if v and not k == "Characterpic":
+                if user.avatar is None:
+                    user.avatar = user.display_avatar 
+                
                 if user.avatar.url and not pic:
                     if k == "Spell":
                         for page in list(
