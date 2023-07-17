@@ -73,20 +73,19 @@ class Spellbook(commands.Cog):
 
         for k, v in userdata.items():
             data = discord.Embed(colour=user.colour)
-            # data.set_author(name="{}'s Account".format(user.name), icon_url=user.avatar.url)
+            # data.set_author(name="{}'s Account".format(user.name), icon_url=user.display_avatar)
             if v and not k == "Characterpic":
-                if user.avatar is None:
-                    user.avatar = user.display_avatar 
+
                 
-                if user.avatar.url and not pic:
+                if user.display_avatar and not pic:
                     if k == "Spell":
                         for page in list(
                             pagify(str(v), delims=[","], page_length=600, shorten_by=50)
                         ):
                             data.set_author(
-                                name=f"{str(user)}'s Spellbook", url=user.avatar.url
+                                name=f"{str(user)}'s Spellbook", url=user.display_avatar
                             )
-                            data.set_thumbnail(url=user.avatar.url)
+                            data.set_thumbnail(url=user.display_avatar)
                             page = listformatter(page)
                             data.add_field(
                                 name="Spells Known:", value=page, inline=False
@@ -97,9 +96,9 @@ class Spellbook(commands.Cog):
                             Pages.append(data)
                     else:
                         data.set_author(
-                            name=f"{str(user)}'s Spellbook", url=user.avatar.url
+                            name=f"{str(user)}'s Spellbook", url=user.display_avatar
                         )
-                        data.set_thumbnail(url=user.avatar.url)
+                        data.set_thumbnail(url=user.display_avatar)
                         data.add_field(name=k, value=v)
                         data.set_footer(
                             text=f"Page {Pageno} out of {len(userdata.items())}"
@@ -112,9 +111,9 @@ class Spellbook(commands.Cog):
                             pagify(str(v), delims=[","], page_length=600, shorten_by=50)
                         ):
                             data.set_author(
-                                name=f"{str(user)}'s Spellbook", url=user.avatar.url
+                                name=f"{str(user)}'s Spellbook", url=user.display_avatar
                             )
-                            data.set_thumbnail(url=user.avatar.url)
+                            data.set_thumbnail(url=user.display_avatar)
                             page = listformatter(page)
                             data.add_field(
                                 name="Spells Known:", value=page, inline=False
@@ -125,9 +124,9 @@ class Spellbook(commands.Cog):
                             Pages.append(data)
                     else:
                         data.set_author(
-                            name=f"{str(user)}'s Spellbook", url=user.avatar.url
+                            name=f"{str(user)}'s Spellbook", url=user.display_avatar
                         )
-                        data.set_thumbnail(url=user.avatar.url)
+                        data.set_thumbnail(url=user.display_avatar)
                         data.add_field(name=k, value=v)
                         data.set_footer(
                             text=f"Page {Pageno} out of {len(userdata.items())}"
